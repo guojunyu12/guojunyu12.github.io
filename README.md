@@ -1,6 +1,6 @@
 # 郭峻宇的个人网站
 
-纯 HTML、CSS、JavaScript，无构建步骤或第三方依赖。支持桌面和手机、作品筛选、项目详情弹窗、深浅色主题和复制邮箱。
+纯 HTML、CSS、JavaScript，无构建步骤或第三方依赖。采用用户提供的 dope.security 深色设计参考：近黑画布、发丝线分区、等宽盖章式标题与单一紫罗兰强调。版式沿用首屏悬浮卡、作品界面示意与两栏介绍。支持桌面和手机、作品筛选、项目详情弹窗、复制邮箱与邮件想法输入框。
 
 ## 预览
 
@@ -15,9 +15,11 @@ python3 -m http.server 4173 --bind 127.0.0.1
 ## 修改内容
 
 - `index.html`：姓名、职业、首页介绍、作品卡片、联系方式。
-- `app.js`：作品详情、主题、筛选、复制邮箱和原创 SVG 图形。
+- `app.js`：作品详情、筛选、移动导航、复制邮箱和邮件输入交互。
 - `styles.css`：颜色、布局、手机适配。
 - `assets/favicon.svg`：网站图标。
+- `assets/fonts/`：旧版本地字体（Source Serif 4），当前页面已改用 Google Fonts，未引用该目录。
+- `DESIGN.md`：本次采用的设计约定。
 
 ## 内容来源
 
@@ -38,9 +40,11 @@ python3 -m http.server 4173 --bind 127.0.0.1
 
 ```sh
 node --check app.js
-git add index.html styles.css app.js assets README.md robots.txt sitemap.xml .nojekyll .gitignore
+git add index.html styles.css app.js assets README.md DESIGN.md PRODUCT.md robots.txt sitemap.xml .nojekyll .gitignore
 git commit -m "Update personal website"
 git push origin main
 ```
 
 GitHub Pages 会自动构建并更新网站。构建状态可在仓库的 Actions 页面查看。
+
+邮件输入框只打开访客本地的邮件应用，不连接模型、不自动发送邮件，也不存储访客输入。

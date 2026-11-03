@@ -28,22 +28,6 @@ const projects = {
   }
 };
 
-const root = document.documentElement;
-const themeButton = document.querySelector('.theme-toggle');
-function applyTheme(theme) {
-  root.dataset.theme = theme;
-  const dark = theme === 'dark';
-  themeButton.setAttribute('aria-pressed', String(dark));
-  themeButton.setAttribute('aria-label', dark ? '切换到浅色模式' : '切换到深色模式');
-  document.querySelector('meta[name="theme-color"]').content = dark ? '#20241f' : '#f8f8f4';
-}
-try { applyTheme(localStorage.getItem('junyu-theme') === 'dark' ? 'dark' : 'light'); } catch { applyTheme('light'); }
-themeButton.addEventListener('click', () => {
-  const theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
-  applyTheme(theme);
-  try { localStorage.setItem('junyu-theme', theme); } catch { /* 受限存储不影响当前主题切换。 */ }
-});
-
 const menuButton = document.querySelector('.menu-toggle');
 const nav = document.querySelector('.nav');
 function closeMenu() {
@@ -63,7 +47,7 @@ document.addEventListener('keydown', event => {
 document.addEventListener('click', event => {
   if (!event.target.closest('.site-header')) closeMenu();
 });
-window.matchMedia('(min-width: 601px)').addEventListener('change', event => { if (event.matches) closeMenu(); });
+window.matchMedia('(min-width: 761px)').addEventListener('change', event => { if (event.matches) closeMenu(); });
 
 document.querySelectorAll('.filter').forEach(button => {
   button.addEventListener('click', () => {
@@ -80,6 +64,13 @@ document.querySelectorAll('.filter').forEach(button => {
     });
     document.querySelector('.work-count').textContent = `${count} 个公开项目`;
   });
+});
+
+document.querySelector('.artifact-video').addEventListener('click', () => {
+  document.querySelector('[data-filter="ai"]').click();
+});
+document.querySelector('.artifact-music').addEventListener('click', () => {
+  document.querySelector('[data-filter="web"]').click();
 });
 
 const dialog = document.querySelector('.project-dialog');
@@ -142,7 +133,7 @@ document.querySelector('.copy-email').addEventListener('click', async () => {
     showToast('邮箱已复制，期待你的来信。');
   } catch {
     const range = document.createRange();
-    range.selectNodeContents(document.querySelector('.copy-email span'));
+    range.selectNodeContents(document.querySelector('.contact-email'));
     const selection = window.getSelection();
     selection.removeAllRanges();
     selection.addRange(range);
@@ -151,43 +142,22 @@ document.querySelector('.copy-email').addEventListener('click', async () => {
 });
 document.getElementById('year').textContent = new Date().getFullYear();
 
-// 原创 SVG 环形雕塑：用投影后的环面构建静态曲面，不依赖图片或 WebGL。
-function buildSculpture() {
-  const mesh = document.getElementById('sculpture-mesh');
-  const ns = 'http://www.w3.org/2000/svg';
-  const major = 119, minor = 46;
-  const segments = 96, sides = 26;
-  function transform(x, y, z) {
-    const ax = 0.67, az = -0.51;
-    const y1 = y * Math.cos(ax) - z * Math.sin(ax);
-    const z1 = y * Math.sin(ax) + z * Math.cos(ax);
-    return [x * Math.cos(az) - y1 * Math.sin(az), x * Math.sin(az) + y1 * Math.cos(az), z1];
+// 只打开访客的邮件应用；本站不发送或存储消息。
+
+// 只打开访客的邮件应用；本站不发送或存储消息。
+const ideaForm = document.getElementById('idea-form');
+const ideaMessage = document.getElementById('idea-message');
+ideaMessage.addEventListener('input', () => ideaMessage.setCustomValidity(''));
+ideaForm.addEventListener('submit', event => {
+  event.preventDefault();
+  const message = ideaMessage.value.trim();
+  if (!message) {
+    ideaMessage.setCustomValidity('请先写下你想聊的内容。');
+    ideaMessage.reportValidity();
+    return;
   }
-  function point(u, v) {
-    const radius = major + minor * Math.cos(v);
-    return transform(radius * Math.cos(u), radius * Math.sin(u), minor * Math.sin(v));
-  }
-  const faces = [];
-  for (let i = 0; i < segments; i++) {
-    for (let j = 0; j < sides; j++) {
-      const u = i * Math.PI * 2 / segments, v = j * Math.PI * 2 / sides;
-      const du = Math.PI * 2 / segments, dv = Math.PI * 2 / sides;
-      const vertices = [point(u,v),point(u+du,v),point(u+du,v+dv),point(u,v+dv)];
-      const n = transform(Math.cos(u+du/2)*Math.cos(v+dv/2),Math.sin(u+du/2)*Math.cos(v+dv/2),Math.sin(v+dv/2));
-      const light = Math.max(0, n[0]*-.45+n[1]*-.6+n[2]*.66);
-      const rib = i % 3 === 0 ? -5 : 1;
-      faces.push({ vertices, depth: vertices.reduce((sum,p)=>sum+p[2],0)/4, light: 36 + 25*light + rib });
-    }
-  }
-  faces.sort((a,b)=>a.depth-b.depth);
-  const fragment = document.createDocumentFragment();
-  faces.forEach(face => {
-    const path = document.createElementNS(ns, 'path');
-    path.setAttribute('d',face.vertices.map((p,i)=>`${i?'L':'M'}${(260+p[0]*1.13).toFixed(2)},${(228+p[1]*1.37).toFixed(2)}`).join(' ')+'Z');
-    const color = `hsl(20 88% ${face.light}%)`;
-    path.setAttribute('fill',color);path.setAttribute('stroke',color);path.setAttribute('stroke-width','.6');
-    fragment.append(path);
-  });
-  mesh.append(fragment);
-}
-buildSculpture();
+  const subject = encodeURIComponent('来自个人网站的一点想法');
+  const body = encodeURIComponent(message);
+  window.location.href = `mailto:guojunyu202109@163.com?subject=${subject}&body=${body}`;
+  showToast('正在打开邮件应用；你可以在那里确认并发送。');
+});

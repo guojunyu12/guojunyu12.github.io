@@ -2,3 +2,12 @@
 .env
 .env.*
 node_modules/
+
+# 本地工具与工作区数据，不随站点发布
+.workbuddy/
+.mcp.json
+.impeccable/review/
+.impeccable/mocks/
+
+# 旧版本地字体，页面已改用 Google Fonts
+assets/fonts/
